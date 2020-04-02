@@ -12,7 +12,7 @@
 ![封面](img/cover_picture.png)
 
 ***
-## 主要内容
+# 主要内容
 1. 无监督分箱（*Unsupervised Binning*）
 2. 互信息熵计算（*Mutual Infomation Entropy*）
 3. 时滞相关性分析（*Time-delayed Correlation Analysis*）
@@ -102,3 +102,41 @@ binning = JointBinning(data, value_types, methods, params)
 4. 进行分箱结果的reshape操作以获得原高维空间中的分箱
 
 整个分箱过程耗时与np.histogram相当。
+
+
+***
+## 2. &ensp; 互信息熵计算  
+信息熵是统计学中对随机变量$x$不确定度的一种度量，不确定性越高则熵越大：
+若$x$为离散变量：
+
+$$
+H(x) = -\sum_{x \in \chi}{p(x) {\rm log} \left(p(x) \right)}
+$$
+
+若$x$为连续变量：
+
+$$
+H(x) = \int_{x \in \chi} {-p(x) {\rm log} (p(x)) {\rm d}x}
+$$
+
+以下以离散变量为例讨论互信息熵的计算。对于两个随机变量$x$和$y$，其联合分布概率为$p(x,y)$，边际分布概率为$p(x)$、$p(y)$，则联合分布熵为：
+
+$$
+H(x,y) = \sum_{x \in \chi} \sum_{y \in Y} -p(x,y) {\rm log_2}(p(x, y))
+$$
+
+如果变量$X$和$y$之间存在相关关系，则联合分布熵应小于二者边际熵之和（可以理解为相关性使得两变量中的不确定性降低了），即：
+
+$$
+H(x,y) < H(x) + H(y)
+$$
+
+则互信息熵可以定义为：
+
+$$
+I(x,y) = H(x) + H(y) - H(x,y) = \sum_{x \in \chi} \sum_{y \in Y} p(x,y) {\rm log_2} { \frac{p(x,y)}{p(x)p(y)}}
+$$
+
+互信息熵$I(x,y)$即是变量$x$和$y$之间相关性强弱的一种度量。互信息熵计算原理如下：
+
+![互信息熵](./img/mutual_info_entropy.png)
