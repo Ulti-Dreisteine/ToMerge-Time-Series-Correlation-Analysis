@@ -12,13 +12,13 @@
 ![封面](img/cover_picture.png)
 
 ***
-## &ensp; 主要内容
+## 主要内容
 1. 无监督分箱（*Unsupervised Binning*）
 2. 互信息熵计算（*Mutual Infomation Entropy*）
 3. 时滞相关性分析（*Time-delayed Correlation Analysis*）
 
 ***
-### 1. &ensp; 无监督分箱
+## 1. &ensp; 无监督分箱
 数据分箱是一种将多个连续值分组为较少数量的“分箱”的方法，其意义在于：  
 * 统计需要
 * 减少次要观测误差的影响
@@ -35,7 +35,7 @@
 
 在本项目中，我们会选择使用无监督分箱对时间序列样本进行统计。
 
-#### 1.1 &ensp; 一维序列分箱    
+### 1.1 &ensp; 一维序列分箱    
 我们在*unsupervised_data_binning.series_binnging*中提供了对一维序列进行无监督分箱的方法。首先，初始化一个*SeriesBinning*对象：
 
 ```
@@ -85,3 +85,20 @@ else:
 ```  
 
 上述方法中，'quasi_chi2'是仿照有监督分箱的卡方分箱方法实现的。首先将序列进行细化等距分箱，然后分别比较相邻两个箱中样本密度，将样本密度差小于一定阈值的两个箱进行合并，直至满足终止条件为止。参数“init_bins”即为初始分箱个数，“final_bins”为最终分箱数的**下限**。
+
+### 1.2 &ensp; 联合分箱
+我们在*unsupervised_data_binning.joint_binning*中提供了对多维序列进行无监督分箱的方法。首先初始化*JointBinning*对象：
+
+```
+binning = JointBinning(data, value_types, methods, params)
+```
+
+其中，*data*为np.ndarray高维数组，*data*.shape = (*N*, *D*)，*N*为样本数，*D*为维数；*value_types*对应*data*中各维度上的值类型；*methods*和*params*对应各维度数据采用的分箱方式和参数，具体内容请参考上文*SeriesBinning*相关内容。
+我们仿照Numpy中高维数据分箱histogramdd方法实现了对高维数据的分箱操作。区别在于Numpy中只提供了等距分箱histgram方法，而我们的分箱还可以使用其他非等距方法。  
+
+1. 对各维度上的数据按照*methods*和*params*设置进行一维分箱，记录下各维度上分箱的*edge*和*label*
+2. 在各个维度上将数据值向label进行插入, 返回插入位置
+3. 将高维坐标映射到一维坐标上, 然后使用一维分箱统计样本在各一维坐标系箱子上的频率
+4. 进行分箱结果的reshape操作以获得原高维空间中的分箱
+
+整个分箱过程耗时与np.histogram相当。
