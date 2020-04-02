@@ -48,7 +48,7 @@ binning = SeriesBinning(x, x_type)
 self.x = np.array(x).flatten()  # flatten处理
 ```
 
-x_type表示序列x中值的类型，为连续数值型“continuous”或离散类别型“discrete”:
+参数*x_type*表示序列*x*中值的类型，为连续数值型“continuous”或离散类别型“discrete”:
 
 ```
 if x_type not in VALUE_TYPES_AVAILABLE:
@@ -83,3 +83,5 @@ elif method == 'label':
 else:
   raise ValueError('Unknown method "{}"'.format(method))
 ```  
+
+上述方法中，'quasi_chi2'是仿照有监督分箱的卡方分箱方法实现的。首先将序列进行细化等距分箱，然后分别比较相邻两个箱中样本密度，将样本密度差小于一定阈值的两个箱进行合并，直至满足终止条件为止。参数“init_bins”即为初始分箱个数，“final_bins”为最终分箱数的**下限**。
