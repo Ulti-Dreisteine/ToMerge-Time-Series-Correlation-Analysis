@@ -129,7 +129,6 @@ class JointBinning(object):
 		"""
 		# 各维度序列边际分箱.
 		edges = []
-		# edges_len_ = []
 		for d in range(self.D):
 			binning_ = SeriesBinning(self.data[:, d], x_type = self.value_types[d])
 			_, e_ = binning_.series_binning(method = self.methods[d], params = self.params[d])
