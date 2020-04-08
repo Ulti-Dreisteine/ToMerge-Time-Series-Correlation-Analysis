@@ -167,3 +167,7 @@ $$
 我们使用污染物浓度和天气数据对PM2.5进行成对的互信息熵检验，数据有26000行，共检测15个字段，总耗时10s。计算结果如下图所示，可以看出PM2.5显著地受到六种污染物浓度、天气状况、风速、风向、温度和相对湿度的影响：
 
 ![Pairwise Mutual Info Entropy Test for PM2.5](img/pairwise_mie_test.png)
+
+***
+## 4. &ensp; 参考文献
+1. Y. Wang, etc.: Unbiased Multivariate Correlation Analysis, AAAI, 2017
