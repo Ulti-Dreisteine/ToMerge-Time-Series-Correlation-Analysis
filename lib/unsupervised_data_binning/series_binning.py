@@ -15,7 +15,7 @@ import logging
 
 logging.basicConfig(level = logging.INFO)
 
-from lake.decorator import time_cost
+# from lake.decorator import time_cost
 import pandas as pd
 import numpy as np
 import warnings
@@ -72,7 +72,7 @@ class SeriesBinning(object):
 	def stat_params(self):
 		return self._get_stat_params()
 	
-	@time_cost
+	# @time_cost
 	def isometric_binning(self, bins: int) -> (list, list):
 		"""
 		等距分箱，适用于对类似高斯型数据进行分箱
@@ -114,7 +114,7 @@ class SeriesBinning(object):
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def quasi_chi2_binning(self, init_bins: int, final_bins: int, merge_freq_thres: float = None) -> (list, list):
 		"""
 		拟卡方分箱
@@ -140,7 +140,7 @@ class SeriesBinning(object):
 		
 		if merge_freq_thres is None:
 			merge_freq_thres = len(self.x) / init_bins / 10
-			
+		
 		# 第一次分箱.
 		init_freq_ns, init_labels = self.isometric_binning(init_bins)
 		densities = init_freq_ns  # 这里使用箱频率密度表示概率分布意义上的密度
@@ -156,14 +156,14 @@ class SeriesBinning(object):
 			do_merge = 0
 			
 			# 在一次循环中优先合并具有最高相似度的箱.
-			similarities = {}
+			similar_ = {}
 			for i in range(bins - 1):
 				j = i + 1
 				density_i, density_j = densities[i], densities[j]
 				s = abs(density_i - density_j)  # 密度相似度，
 				
 				if s <= merge_freq_thres:
-					similarities[i] = s
+					similar_[i] = s
 					do_merge = 1
 				else:
 					continue
@@ -171,8 +171,8 @@ class SeriesBinning(object):
 			if (do_merge == 0) | (bins == final_bins):
 				break
 			else:
-				similarities = sorted(similarities.items(), key = lambda x: x[1], reverse = False)  # 升序排列
-				i = list(similarities[0])[0]
+				similar_ = sorted(similar_.items(), key = lambda x: x[1], reverse = False)  # 升序排列
+				i = list(similar_[0])[0]
 				j = i + 1
 				
 				# 执行i和j箱合并, j合并到i箱
@@ -190,7 +190,7 @@ class SeriesBinning(object):
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def label_binning(self) -> (list, list):
 		"""
 		根据离散标签进行分箱
@@ -217,14 +217,14 @@ class SeriesBinning(object):
 		d_['index'] = d_.index
 		freq_counts_ = d_.groupby('label').count()
 		freq_counts_ = freq_counts_.to_dict()['index']
-
+		
 		freq_ns = []
 		for i in range(len(labels)):
 			freq_ns.append(freq_counts_[labels[i]])
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def series_binning(self, method: str, params: dict = None):
 		"""
 		序列分箱

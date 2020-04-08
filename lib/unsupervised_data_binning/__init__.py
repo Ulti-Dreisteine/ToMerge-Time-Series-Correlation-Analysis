@@ -13,10 +13,7 @@ Created on 2020/2/11 13:39
 
 import numpy as np
 
-# 支持的序列值类型.
 VALUE_TYPES_AVAILABLE = ['continuous', 'discrete']
-
-# 支持的分箱方法类型.
 METHODS_AVAILABLE = {
 	'continuous': ['isometric', 'quasi_chi2'],
 	'discrete': ['label']
