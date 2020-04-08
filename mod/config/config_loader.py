@@ -40,7 +40,9 @@ class ConfigLoader(object):
 		self._proj_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 	
 	def _set_proj_cmap(self):
-		"""设置项目颜色方案"""
+		"""
+		设置项目颜色方案
+		"""
 		self._proj_cmap = {
 			'blue': '#1f77b4',  		# 蓝色
 			'orange': '#ff7f0e',  		# 黄橙色
@@ -59,7 +61,9 @@ class ConfigLoader(object):
 			self._conf = yaml.load(f, Loader = yaml.Loader)  # yaml.FullLoader
 	
 	def _load_env_config(self):
-		"""载入环境变量配置"""
+		"""
+		载入环境变量配置
+		"""
 		config_dir_ = os.path.join(self.proj_dir, 'config/')
 		
 		# 如果本地config中有master.yml则优先使用master, 否则使用default.yml, 否则为空字典.
@@ -92,7 +96,9 @@ class ConfigLoader(object):
 					self._env_conf.update({key: self._local_env_conf[key]})
 				
 	def _load_test_params_config(self):
-		"""载入测试参数配置"""
+		"""
+		载入测试参数配置
+		"""
 		config_dir_ = os.path.join(self.proj_dir, 'config/')
 		test_config_path_ = os.path.join(config_dir_, 'test_params.yml')
 		with open(test_config_path_, 'r', encoding = 'utf-8') as f:
