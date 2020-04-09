@@ -325,59 +325,6 @@ class ManyForOneMutualInfoEntropy(object):
 			td_mie_dict[lag] = mutual_info_entropy_
 		
 		return td_mie_dict
-		
-
-if __name__ == '__main__':
-	# %% 构建测试数据.
-	import matplotlib.pyplot as plt
-	import pandas as pd
-	import os
-	from lib import proj_dir
-	from lib import RECY_PUMP_ELEC_FIELDS, OXY_BLOWER_ELEC_FIELDS
-
-	data = pd.read_csv(os.path.join(proj_dir, 'data/runtime_segs/data_normalized.csv'))
-
-	# %% 测试PairwiseMutualInfoEntropy.
-	# 获得测试数据和参数.
-	x_field = 'ads_tower_gyp_supply_flow'
-	y_field = 'fgd_smoke_outlet_so2_conc'
-	x = np.array(data.loc[:, x_field])
-	y = np.array(data.loc[:, y_field])
-
-	value_types = ['continuous'] + ['continuous']
-	methods = ['quasi_chi2'] + ['quasi_chi2']
-	params = [{'init_bins': 250, 'final_bins': 100}] + [{'init_bins': 250, 'final_bins': 100}]
-	lags = list(np.arange(-5000, 5000 + 10, 10))
-
-	self = PairwiseMutualInfoEntropy(x, y, value_types)
-
-	# 测试self.cal_mie().
-	mie = self.cal_mie(methods, params)
-
-	# 测试self.cal_time_delayed_mie().
-	td_mie_dict = self.cal_time_delayed_mie(methods, params, lags)
-	plt.figure(1)
-	plt.plot(list(td_mie_dict.keys()), list(td_mie_dict.values()))
-	
-	# %% 测试ManyForOneMutualInfoEntropy.
-	# 获得测试数据和参数.
-	x_fields = RECY_PUMP_ELEC_FIELDS
-	x = np.array(data.loc[:, x_fields])
-	
-	value_types = ['discrete'] * len(x_fields) + ['continuous']
-	methods = ['label'] * len(x_fields) + ['quasi_chi2']
-	params = [{}] * len(x_fields) + [{'init_bins': 250, 'final_bins': 100}]
-	lags = list(np.arange(-5000, 5000 + 10, 10))
-	
-	self = ManyForOneMutualInfoEntropy(x, y, value_types)
-	
-	# 测试self.cal_mie().
-	mie = self.cal_mie(methods, params)
-	
-	# 测试self.cal_time_delayed_mie().
-	td_mie_dict = self.cal_time_delayed_mie(methods, params, lags)
-	plt.figure(2)
-	plt.plot(list(td_mie_dict.keys()), list(td_mie_dict.values()))
 	
 	
 

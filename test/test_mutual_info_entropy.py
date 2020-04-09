@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	
 	# %% 测试成对检验.
 	y_field = 'pm25'
-	lags = list(np.arange(-500, 500 + 5, 5))
+	lags = list(np.arange(-2500, 2500 + 5, 5))
 	plt.figure('td_mie', figsize = [8, 6])
 	plt.suptitle('Time-Delayed Mutual Info Entropy Test for {}'.format(y_field), fontsize = 10, fontweight = 'bold')
 	for i in range(1, len(data.columns)):
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 		plt.yticks(fontsize = 8)
 		plt.xlabel('time lag', fontsize = 8)
 		plt.ylabel('mie', fontsize = 8)
-		plt.xlim([-500, 500])
+		plt.xlim([-2500, 2500])
 		plt.tight_layout()
 		plt.subplots_adjust(top = 0.94)
 	plt.savefig(os.path.join(proj_dir, 'img/pairwise_mie_test.png'), dpi = 450)
