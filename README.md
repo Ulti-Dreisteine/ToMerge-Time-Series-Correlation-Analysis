@@ -53,7 +53,7 @@ self.x = np.array(x).flatten()  # flatten处理
 ```
 if x_type not in VALUE_TYPES_AVAILABLE:
   raise ValueError('Param x_type {} not in value_types_availabel = {}.'.format(x_type, VALUE_TYPES_AVAILABLE))
-```  
+```
 
 其中*SeriesBinning*对象初始化后便会获得属性*stat_params*以记录序列x的均值、标准差、中位数、上下四分位数等统计参数，以作后用。  
 接下来便可对*x*进行分箱操作了，可以调用如下接口实现：  
@@ -68,7 +68,7 @@ freq_ns, labels = self.label_binning()                            # 根据类别
 
 ```
 freq_ns, labels = self.series_binning(method, params)             # 通用接口
-```  
+```
 
 其中*method*支持“isometric”、“quasi_chi2”和“label”，*params*对应设置如下：
 
@@ -82,7 +82,7 @@ elif method == 'label':
   pass
 else:
   raise ValueError('Unknown method "{}"'.format(method))
-```  
+```
 
 上述方法中，'quasi_chi2'是仿照有监督分箱的卡方分箱方法实现的。首先将序列进行细化等距分箱，然后分别比较相邻两个箱中样本密度，将样本密度差小于一定阈值的两个箱进行合并，直至满足终止条件为止。参数“init_bins”即为初始分箱个数，“final_bins”为最终分箱数的**下限**。
 
@@ -103,12 +103,10 @@ binning = JointBinning(data, value_types, methods, params)
 
 整个分箱过程耗时与np.histogram相当。
 
-
 ***
 ## 2. &ensp; 互信息熵计算  
 信息熵是统计学中对随机变量$x$不确定度的一种度量，不确定性越高则熵越大：
 若$x$为离散变量：
-
 $$
 H(x) = -\sum_{x \in \chi}{p(x) {\rm log} \left(p(x) \right)}
 $$
