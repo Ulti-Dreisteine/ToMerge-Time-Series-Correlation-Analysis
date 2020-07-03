@@ -33,7 +33,15 @@ _color_map = {
 	'purple': '#9467bd',            # 紫色
 	'cyan': '#17becf',              # 青色
 	'grey': '#7f7f7f',              # 灰色
-	'black': 'k'                    # 黑色
+	'black': 'k',                   # 黑色
+	
+	# 类似色搭配互补色, 同一色系list中颜色越亮到暗排列.
+	'similar-complement-cmap': {
+		'greens': ['#5ED1BA', '#34D1B2', '#00A383', '#1F7A68', '#006A55'],
+		'reds': ['#F97083', '#F93E58', '#F30021', '#B62E40s', '#9E0016'],
+		'yellows': ['#FFCB73', '#FFB840', '#FFA100', '#BF8A30', '#A66900'],
+		'oranges': ['#FFAA73', '#FF8B40', '#FF6400', '#BF6830', '#A64100'],
+	}
 }
 
 
