@@ -10,7 +10,7 @@ Created on 2020/7/3 5:38 下午
 
 @Email: dreisteine262@163.com
 
-@Describe:
+@Describe: 单序列分箱算法
 """
 
 import logging
@@ -48,7 +48,7 @@ class SeriesBinning(object):
 		try:
 			assert self.x_type == 'continuous'
 		except:
-			warnings.warn('WARNING: stat characters may not be accurate for x_type = {}'.format(self.x_type))
+			warnings.warn('WARNING: stat characters may not be accurate for self.x_type = {}'.format(self.x_type))
 		
 		_mean = np.mean(self.x)
 		_std = np.std(self.x)
