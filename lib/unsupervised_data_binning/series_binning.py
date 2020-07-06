@@ -10,7 +10,7 @@ Created on 2020/7/3 5:38 下午
 
 @Email: dreisteine262@163.com
 
-@Describe:
+@Describe: 单序列分箱算法
 """
 
 import logging
