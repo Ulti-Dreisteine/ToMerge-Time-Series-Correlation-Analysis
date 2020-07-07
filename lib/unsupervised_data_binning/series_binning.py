@@ -26,7 +26,7 @@ import sys, os
 
 sys.path.append('../..')
 
-from lib.unsupervised_data_binning import VALUE_TYPES_AVAILABLE, METHODS_AVAILABLE
+from lib import VALUE_TYPES_AVAILABLE, METHODS_AVAILABLE
 
 
 class SeriesBinning(object):
@@ -68,9 +68,23 @@ class SeriesBinning(object):
 		return stat_params
 	
 	@property
-	def stat_characters(self):
+	def stat_characters(self) -> dict:
 		"""序列数据统计学特征"""
 		return self._cal_stat_characters()
+	
+	@property
+	def normal_bounds(self) -> list:
+		_percentiles = self.stat_characters['percentiles']
+		_q3, _q1, _iqr = _percentiles['q3'], _percentiles['q1'], _percentiles['iqr']
+		# binning_range = [
+		# 	max(np.min(self.x), _q1 - 1.5 * _iqr),
+		# 	min(np.max(self.x), _q3 + 1.5 * _iqr)
+		# ]
+		binning_range = [
+			max(np.min(self.x), _q1 - 5.0 * _iqr),
+			min(np.max(self.x), _q3 + 5.0 * _iqr)
+		]
+		return binning_range
 	
 	def _check_binning_match(self, current_method: str, suit_x_type: str, suit_method: str):
 		"""检查分箱方法与待分箱值类型是否匹配"""
@@ -91,20 +105,13 @@ class SeriesBinning(object):
 		"""
 		self._check_binning_match('isometric_binning', 'continuous', 'label_binning')
 		
-		_percentiles = self.stat_characters['percentiles']
-		_q3, _q1, _iqr = _percentiles['q3'], _percentiles['q1'], _percentiles['iqr']
-		_binning_range = [
-			max(np.min(self.x), _q1 - 1.5 * _iqr),
-			min(np.max(self.x), _q3 + 1.5 * _iqr)
-		]
-		
 		# 分箱.
-		freq_ns, _intervals = np.histogram(self.x, bins, range = _binning_range)
+		freq_ns, _intervals = np.histogram(self.x, bins, range = self.normal_bounds)
 		labels = _intervals[1:]                                         # **以每个分箱区间的右边界为label
 		
 		# 转为list类型.
 		freq_ns = list(freq_ns)
-		labels = list(labels.astype(np.float32))                        # TODO: 此处的数值精度是否能够足够用于区分, 是否需要将数据进行归一化处理
+		labels = list(labels.astype(np.float64))                        # TODO: 此处的数值精度是否能够足够用于区分, 是否需要将数据进行归一化处理
 		
 		return freq_ns, labels
 	
@@ -246,7 +253,7 @@ if __name__ == '__main__':
 	test_results = defaultdict(dict)
 	test_params = {
 		'isometric': {'bins': 30},
-		'equifreq': {'equi_freq_n': 90},
+		'equifreq': {'equi_freq_n': 20},
 		'quasi_chi2': {'init_bins': 150, 'final_bins': 30}
 	}
 	

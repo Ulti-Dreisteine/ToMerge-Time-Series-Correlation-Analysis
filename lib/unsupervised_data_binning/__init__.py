@@ -13,14 +13,14 @@ Created on 2020/7/3 5:35 下午
 @Describe:
 """
 
-VALUE_TYPES_AVAILABLE = ['continuous', 'discrete']
-
-METHODS_AVAILABLE = {
-	'continuous': ['isometric', 'equifreq', 'quasi_chi2'],
-	'discrete': ['label']
-}
-
-__all__ = ['VALUE_TYPES_AVAILABLE', 'METHODS_AVAILABLE']
+# VALUE_TYPES_AVAILABLE = ['continuous', 'discrete']
+#
+# METHODS_AVAILABLE = {
+# 	'continuous': ['isometric', 'equifreq', 'quasi_chi2'],
+# 	'discrete': ['label']
+# }
+#
+# __all__ = ['VALUE_TYPES_AVAILABLE', 'METHODS_AVAILABLE']
 
 
 

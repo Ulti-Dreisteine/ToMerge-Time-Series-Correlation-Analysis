@@ -29,6 +29,11 @@ test_params = config_loader.test_params
 # ============ 环境变量 ============
 
 # ============ 模型参数 ============
+VALUE_TYPES_AVAILABLE = ['continuous', 'discrete']
+METHODS_AVAILABLE = {
+	'continuous': ['isometric', 'equifreq', 'quasi_chi2'],
+	'discrete': ['label']
+}
 
 # ============ 测试参数 ============
 
