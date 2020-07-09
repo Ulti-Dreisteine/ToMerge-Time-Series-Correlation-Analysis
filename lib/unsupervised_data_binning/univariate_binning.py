@@ -224,7 +224,7 @@ class UnivarBinning(object):
 		
 		return freq_ns, labels
 	
-	def series_binning(self, method: str, **params):
+	def do_univar_binning(self, method: str, **params):
 		"""序列分箱算法"""
 		freq_ns, labels = None, None
 		if method in METHODS_AVAILABLE['continuous'] + METHODS_AVAILABLE['discrete']:
@@ -274,7 +274,7 @@ if __name__ == '__main__':
 
 	# 测试通用分箱函数.
 	for method in ['isometric', 'equifreq', 'quasi_chi2']:
-		freq_ns, labels = self.series_binning(method, **test_params[method])
+		freq_ns, labels = self.do_univar_binning(method, **test_params[method])
 		test_results['by_general_func'][method] = {'freq_ns': freq_ns, 'labels': labels}
 		
 	# ============ 测试离散值分箱 ============

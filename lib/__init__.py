@@ -24,6 +24,8 @@ from mod.config.config_loader import config_loader
 
 proj_dir, proj_cmap = config_loader.proj_dir, config_loader.proj_cmap
 
+eps = 1e-12
+
 # 项目变量配置.
 environ_config = config_loader.environ_config
 model_config = config_loader.model_config
@@ -84,6 +86,18 @@ def convert_series_values(x: list or np.ndarray, x_type: str):
 				raise RuntimeError('Cannot convert x into numpy.ndarray with numerical values np.float64 or np.float16')
 		else:
 			raise RuntimeError('Cannot convert x into numpy.ndarray with numerical values np.float64 or np.float16')
+
+
+def drop_nans_and_add_noise(arr: np.ndarray, var_types: list):
+	"""在数组中去掉异常值, 并对连续值加入噪声"""
+	_D = arr.shape[1]
+	_df = pd.DataFrame(arr).dropna(axis = 0, how = 'any')
+	arr = np.array(_df)
+	
+	for i in range(_D):
+		if var_types[i] == 'continuous':
+			arr[:, i] += eps * np.random.random(arr.shape[0])
+	return arr
 
 
 
