@@ -83,12 +83,13 @@ class UnivarBinning(object):
 		_percentiles = self.stat_characters['percentiles']
 		_q3, _q1, _iqr = _percentiles['q3'], _percentiles['q1'], _percentiles['iqr']
 		
-		# TODO: Bug, 这里使用分位数导致后续计算joint_binning时某些样本会落在区间外导致分箱数+1.
-		bounds = [
-			max(np.min(self.x), _q1 - 1.5 * _iqr),
-			min(np.max(self.x), _q3 + 1.5 * _iqr)
-		]
-		# bounds = [np.min(self.x), np.max(self.x)]
+		# 使用分位数确定序列分箱数据值范围.
+		# TODO: 这里还不能使用分位数.
+		# bounds = [
+		# 	max(np.min(self.x), _q1 - 1.5 * _iqr),
+		# 	min(np.max(self.x), _q3 + 1.5 * _iqr)
+		# ]
+		bounds = [np.min(self.x), np.max(self.x)]
 		return bounds
 	
 	def _check_binning_match(self, current_method: str, suit_x_type: str, suit_method: str):

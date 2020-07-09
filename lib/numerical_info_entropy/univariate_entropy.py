@@ -120,8 +120,10 @@ if __name__ == '__main__':
 	data = load_test_data(label = 'patient')
 	
 	# ============ 测试连续值分箱 ============
-	col = 'K'
-	x_type = 'continuous'
+	# col = 'K'
+	# x_type = 'continuous'
+	col = 'VTE'
+	x_type = 'discrete'
 	x = np.array(data[col])
 	
 	bins = 50
@@ -130,7 +132,6 @@ if __name__ == '__main__':
 	
 	# ============ 测试连续变量分箱参数设置 ============
 	import matplotlib.pyplot as plt
-	
 	bins_list = list(range(1, 500, 1))
 	results = defaultdict(list)
 	for bins in bins_list:

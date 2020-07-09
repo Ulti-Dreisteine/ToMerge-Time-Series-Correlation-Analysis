@@ -121,14 +121,14 @@ class MultivarBinning(object):
 		_check_array_and_params(self.arr, self.var_types, methods, params)
 		
 		# 各维度序列边际分箱.
-		edges, binning_bounds = [], {}
+		self.edges, self.binning_bounds = [], {}
 		for d in range(self.D):
 			binning_ = UnivarBinning(self.arr[:, d], x_type = self.var_types[d])
 			_, e_ = binning_.do_univar_binning(method = methods[d], **params[d])
-			edges.append(e_)
+			self.edges.append(e_)
 			
-			if var_types[d] == 'continuous':
-				binning_bounds[d] = binning_.binning_bounds
+			if self.var_types[d] == 'continuous':
+				self.binning_bounds[d] = binning_.binning_bounds
 			
 		# 在各个维度上将数据值向label进行插入, 返回插入位置.
 		# 这里的arr值需要限制在序列插值范围内, 与UnivarBinning.binning_bounds范围对应.
@@ -138,10 +138,10 @@ class MultivarBinning(object):
 			_series = self.arr[:, d]
 			
 			if self.var_types[d] == 'continuous':
-				_series[_series < binning_bounds[d][0]] = binning_bounds[d][0]
-				_series[_series > binning_bounds[d][1]] = binning_bounds[d][1]
+				_series[_series < self.binning_bounds[d][0]] = self.binning_bounds[d][0]
+				_series[_series > self.binning_bounds[d][1]] = self.binning_bounds[d][1]
 			
-			insert_locs_[:, d] = np.searchsorted(edges[d], _series, side = 'left')
+			insert_locs_[:, d] = np.searchsorted(self.edges[d], _series, side = 'left')
 			
 		# 将高维坐标映射到一维坐标上, 然后统计各一维坐标上的频率.
 		edges_len_ = list(np.max(insert_locs_, axis = 0) + 1)
@@ -151,7 +151,7 @@ class MultivarBinning(object):
 		# reshape转换形状.
 		hist = hist.reshape(edges_len_)
 		
-		return hist, edges
+		return hist, self.edges
 	
 	
 if __name__ == '__main__':
