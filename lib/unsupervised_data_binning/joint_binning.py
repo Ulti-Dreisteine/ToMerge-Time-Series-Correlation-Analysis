@@ -34,6 +34,8 @@ sys.path.append('../..')
 from lib import VALUE_TYPES_AVAILABLE, METHODS_AVAILABLE
 from lib.unsupervised_data_binning.series_binning import SeriesBinning
 
+eps = 1e-12
+
 
 def _check_value_type_and_method(value_type, method):
 	if value_type == 'continuous':
@@ -153,6 +155,67 @@ class JointBinning(object):
 		hist = hist.reshape(edges_len_)
 		
 		return hist, edges
+
+
+if __name__ == '__main__':
+	# ============ 载入数据和参数 ============
+	import matplotlib.pyplot as plt
+	from collections import defaultdict
+	from lib import load_test_data
+	from lib.numerical_info_entropy.univariate import UnivarInfoEntropy
+	from lib.numerical_info_entropy.mutivariate import PairJointEntropy
+	
+	data = load_test_data(label = 'patient')
+	
+	# ============ 数据和参数准备 ============
+	continuous_bins = {
+		'AGE': 40, 'P': 50, 'MBP': 50, 'SHOCK_INDEX': 50, 'BMI': 50, 'RBC': 50,
+		'HGB': 50, 'PLT': 50, 'WBC': 50, 'ALB': 50, 'CRE': 50, 'UA': 50, 'AST': 50,
+		'ALT': 50, 'GLU': 50, 'TG': 50, 'CHO': 50, 'CA': 100, 'MG': 40, 'LDL': 50,
+		'NA': 50, 'K': 50, 'CL': 50, 'GFR': 50, 'PT': 50, 'FIB': 50, 'DD': 50, 'CK': 50,
+		'CAPRINI_SCORE': 10,
+	}
+	continuous_cols = list(continuous_bins.keys())
+	
+	x_col = 'CRE'
+	y_col = 'VTE'
+	x, y = list(data[x_col]), list(data[y_col])
+	var_types = [
+		'continuous' if x_col in continuous_cols else 'discrete',
+		'continuous' if y_col in continuous_cols else 'discrete',
+	]
+	
+	results = defaultdict(list)
+	bins_ = 1
+	
+	# 边际熵.
+	univar_entropy_x = UnivarInfoEntropy(x, var_types[0])
+	univar_entropy_y = UnivarInfoEntropy(y, var_types[1])
+	
+	univar_entropy_x.do_series_binning(bins = bins_)
+	univar_entropy_y.do_series_binning(bins = None)
+	
+	H_c_x = univar_entropy_x.cal_H_c()
+	H_c_y = univar_entropy_y.cal_H_c()
+	
+	bins = [bins_, None]
+	pair_joint_entropy = PairJointEntropy(x, y, var_types, bins)
+	
+	methods, params = [], []
+	var_types = [pair_joint_entropy.x_type, pair_joint_entropy.y_type]
+	for i in range(2):
+		if var_types[i] == 'continuous':
+			methods.append('isometric')
+			params.append({'bins': pair_joint_entropy.bins[i]})
+		else:
+			methods.append('label')
+			params.append({})
+	
+	# ============ 测试类 ============
+	arr = np.vstack((pair_joint_entropy.x, pair_joint_entropy.y)).T
+	value_types = [pair_joint_entropy.x_type, pair_joint_entropy.y_type]
+	
+	self = JointBinning(arr, value_types)
 
 
 

@@ -11,7 +11,8 @@ Created on 2020/1/21 下午3:01
 @Describe: 初始化
 """
 
-import sys
+import pandas as pd
+import sys, os
 
 sys.path.append('../')
 
@@ -35,7 +36,15 @@ METHODS_AVAILABLE = {
 	'discrete': ['label']
 }
 
+
 # ============ 测试参数 ============
+def load_test_data(label: str) -> pd.DataFrame:
+	if label == 'pollution':
+		data = pd.read_csv(os.path.join(proj_dir, 'data/raw/pollutant_conc_and_weather.csv'))
+	elif label == 'patient':
+		data = pd.read_excel(os.path.join(proj_dir, 'data/raw/patient_info.xlsx'))
+	return data
+
 
 
 

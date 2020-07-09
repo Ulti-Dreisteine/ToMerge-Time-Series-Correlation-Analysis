@@ -77,13 +77,10 @@ class SeriesBinning(object):
 		_percentiles = self.stat_characters['percentiles']
 		_q3, _q1, _iqr = _percentiles['q3'], _percentiles['q1'], _percentiles['iqr']
 		# binning_range = [
-		# 	max(np.min(self.x), _q1 - 1.5 * _iqr),
-		# 	min(np.max(self.x), _q3 + 1.5 * _iqr)
+		# 	max(np.min(self.x), _q1 - 5.0 * _iqr),
+		# 	min(np.max(self.x), _q3 + 5.0 * _iqr)
 		# ]
-		binning_range = [
-			max(np.min(self.x), _q1 - 5.0 * _iqr),
-			min(np.max(self.x), _q3 + 5.0 * _iqr)
-		]
+		binning_range = [np.min(self.x), np.max(self.x)]    # TODO: Bug, 这里不能使用分位数, 否则后续计算joint_binning时某些样本会落在区间外导致分箱数+1
 		return binning_range
 	
 	def _check_binning_match(self, current_method: str, suit_x_type: str, suit_method: str):
