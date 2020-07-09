@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on 2020/7/3 5:38 下午
+Created on 2020/7/9 12:32 下午
 
-@File: series_binning.py
+@File: univariate.py
 
 @Department: AI Lab, Rockontrol, Chengdu
 
@@ -10,11 +10,10 @@ Created on 2020/7/3 5:38 下午
 
 @Email: dreisteine262@163.com
 
-@Describe: 单序列分箱算法
+@Describe: 单变量分箱
 """
 
 import logging
-from typing import List, Any
 
 logging.basicConfig(level = logging.INFO)
 
@@ -22,15 +21,42 @@ from lake.decorator import time_cost
 import pandas as pd
 import numpy as np
 import warnings
-import sys, os
+import sys
 
 sys.path.append('../..')
 
 from lib import VALUE_TYPES_AVAILABLE, METHODS_AVAILABLE
+from lib import convert_series_values
 
 
-class SeriesBinning(object):
-	"""单序列数据分箱量化"""
+def _cal_stat_characters(x: list or np.ndarray, x_type: str):
+	"""计算连续值变量统计学特征"""
+	x = np.array(x).flatten()
+	try:
+		assert x_type == 'continuous'
+	except:
+		warnings.warn('WARNING: stat characters may not be accurate for self.x_type = {}'.format(x_type))
+	
+	_mean = np.mean(x)
+	_std = np.std(x)
+	_q1, _q2, _q3 = np.percentile(x, (25, 50, 75), interpolation = 'midpoint')
+	_iqr = abs(_q3 - _q1)
+	
+	stat_params = {
+		'mean': _mean,
+		'std': _std,
+		'percentiles': {
+			'q1': _q1,  # 下25%位
+			'q2': _q2,  # 中位数
+			'q3': _q3,  # 上25%位
+			'iqr': _iqr
+		}
+	}
+	return stat_params
+
+
+class UnivarBinning(object):
+	"""单变量分箱"""
 	
 	def __init__(self, x: list or np.ndarray, x_type: str in VALUE_TYPES_AVAILABLE):
 		"""
@@ -40,55 +66,36 @@ class SeriesBinning(object):
 		if x_type not in VALUE_TYPES_AVAILABLE:
 			raise ValueError('Invalid x_type {}'.format(x_type))
 		
-		self.x = np.array(x).flatten()
-		self.x = self.x[~np.isnan(self.x)]      # 这一步默认删除了数据中的nan值
+		# 将序列值转换为数值， 连续值转为np.float64, 离散值转换为np.float16.
+		self.x = convert_series_values(x, x_type)
+		
+		# 默认删除了数据中的nan值
+		self.x = self.x[~np.isnan(self.x)]
 		self.x_type = x_type
-	
-	def _cal_stat_characters(self):
-		try:
-			assert self.x_type == 'continuous'
-		except:
-			warnings.warn('WARNING: stat characters may not be accurate for self.x_type = {}'.format(self.x_type))
-		
-		_mean = np.mean(self.x)
-		_std = np.std(self.x)
-		_q1, _q2, _q3 = np.percentile(self.x, (25, 50, 75), interpolation = 'midpoint')
-		_iqr = abs(_q3 - _q1)
-		
-		stat_params = {
-			'mean': _mean,
-			'std': _std,
-			'percentiles': {
-				'q1': _q1,  # 下25%位
-				'q2': _q2,  # 中位数
-				'q3': _q3,  # 上25%位
-				'iqr': _iqr
-			}
-		}
-		return stat_params
 	
 	@property
 	def stat_characters(self) -> dict:
-		"""序列数据统计学特征"""
-		return self._cal_stat_characters()
+		"""单变量数据统计学特征"""
+		return _cal_stat_characters(self.x, self.x_type)
 	
 	@property
-	def normal_bounds(self) -> list:
+	def binning_bounds(self) -> list:
 		_percentiles = self.stat_characters['percentiles']
 		_q3, _q1, _iqr = _percentiles['q3'], _percentiles['q1'], _percentiles['iqr']
-		# binning_range = [
-		# 	max(np.min(self.x), _q1 - 5.0 * _iqr),
-		# 	min(np.max(self.x), _q3 + 5.0 * _iqr)
-		# ]
-		binning_range = [np.min(self.x), np.max(self.x)]    # TODO: Bug, 这里不能使用分位数, 否则后续计算joint_binning时某些样本会落在区间外导致分箱数+1
-		return binning_range
+		
+		# TODO: Bug, 这里使用分位数导致后续计算joint_binning时某些样本会落在区间外导致分箱数+1.
+		bounds = [
+			max(np.min(self.x), _q1 - 1.5 * _iqr),
+			min(np.max(self.x), _q3 + 1.5 * _iqr)
+		]
+		# bounds = [np.min(self.x), np.max(self.x)]
+		return bounds
 	
 	def _check_binning_match(self, current_method: str, suit_x_type: str, suit_method: str):
 		"""检查分箱方法与待分箱值类型是否匹配"""
 		try:
 			assert self.x_type == suit_x_type
-		except Exception as e:
-			print(e)
+		except Exception:
 			warnings.warn(
 				'x_type is not "{}" for self.{}, try switch to self.{}'.format(
 					self.x_type, current_method, suit_method)
@@ -102,13 +109,14 @@ class SeriesBinning(object):
 		"""
 		self._check_binning_match('isometric_binning', 'continuous', 'label_binning')
 		
-		# 分箱.
-		freq_ns, _intervals = np.histogram(self.x, bins, range = self.normal_bounds)
-		labels = _intervals[1:]                                         # **以每个分箱区间的右边界为label
+		# 分箱, 数据只会在分箱边界内进行分箱.
+		freq_ns, _intervals = np.histogram(self.x, bins, range = self.binning_bounds)
+		labels = _intervals[1:]  # **以每个分箱区间的右边界为label
 		
 		# 转为list类型.
+		# TODO: 此处的数值精度是否能够足够用于区分, 需确认是否需要将数据进行归一化处理.
 		freq_ns = list(freq_ns)
-		labels = list(labels.astype(np.float64))                        # TODO: 此处的数值精度是否能够足够用于区分, 是否需要将数据进行归一化处理
+		labels = list(labels.astype(np.float64))
 		
 		return freq_ns, labels
 	
@@ -123,7 +131,7 @@ class SeriesBinning(object):
 		
 		freq_ns, labels = [], []
 		while True:
-			if len(x) <= equi_freq_n:  # 将该箱与上一个箱合并
+			if len(x) <= equi_freq_n:               # 将该箱与上一个箱合并
 				freq_ns[-1] += len(x)
 				labels[-1] = x[-1]
 				break
@@ -134,7 +142,7 @@ class SeriesBinning(object):
 				continue
 		
 		return freq_ns, labels
-		
+	
 	@time_cost
 	def quasi_chi2_binning(self, init_bins: int, final_bins: int, merge_freq_thres: float = None) -> (list, list):
 		"""
@@ -146,11 +154,11 @@ class SeriesBinning(object):
 		self._check_binning_match('quasi_chi2_binning', 'continuous', 'label_binning')
 		
 		if merge_freq_thres is None:
-			merge_freq_thres = len(self.x) / init_bins / 10             # 默认分箱密度阈值
-			
+			merge_freq_thres = len(self.x) / init_bins / 10  # 默认分箱密度阈值
+		
 		# 初始化.
 		init_freq_ns, init_labels = self.isometric_binning(init_bins)
-		densities = init_freq_ns                                        # 这里使用箱频率密度表示概率分布意义上的密度
+		densities = init_freq_ns                            # 这里使用箱频率密度表示概率分布意义上的密度
 		init_box_lens = [1] * init_bins
 		
 		# 根据相邻箱密度差异判断是否合并箱.
@@ -167,7 +175,7 @@ class SeriesBinning(object):
 			for i in range(bins - 1):
 				j = i + 1
 				density_i, density_j = densities[i], densities[j]
-				s = abs(density_i - density_j)                          # 密度相似度，
+				s = abs(density_i - density_j)              # 密度相似度，
 				
 				if s <= merge_freq_thres:
 					similar_[i] = s
@@ -185,7 +193,7 @@ class SeriesBinning(object):
 				# 执行i和j箱合并, j合并到i箱
 				freq_ns[i] += freq_ns[j]
 				box_lens[i] += box_lens[j]
-				densities[i] = freq_ns[i] / box_lens[i]                 # 使用i、j箱混合后的密度
+				densities[i] = freq_ns[i] / box_lens[i]     # 使用i、j箱混合后的密度
 				labels[i] = labels[j]
 				
 				freq_ns = freq_ns[: j] + freq_ns[j + 1:]
@@ -231,29 +239,29 @@ class SeriesBinning(object):
 			return freq_ns, labels
 		else:
 			raise ValueError('Invalid method {}'.format(method))
-		
-		
+
+
 if __name__ == '__main__':
 	# ============ 载入测试数据和参数 ============
-	import matplotlib.pyplot as plt
 	from collections import defaultdict
-	from lib import proj_dir
+	from lib import load_test_data
 	
-	data = pd.read_excel(os.path.join(proj_dir, 'data/raw/patient_info.xlsx'))
+	data = load_test_data(label = 'patient')
 	
-	# ============ 测试分箱 ============
-	col = 'K'
-	x = np.array(data[col])
+	# ============ 测试连续值分箱 ============
+	col = 'CK'
 	x_type = 'continuous'
-	self = SeriesBinning(x, x_type)
-	
+	x = np.array(data[col])
+
+	self = UnivarBinning(x, x_type)
+
 	test_results = defaultdict(dict)
 	test_params = {
 		'isometric': {'bins': 30},
 		'equifreq': {'equi_freq_n': 20},
 		'quasi_chi2': {'init_bins': 150, 'final_bins': 30}
 	}
-	
+
 	# 测试各分箱函数.
 	for method in ['isometric', 'equifreq', 'quasi_chi2']:
 		if method == 'isometric':
@@ -263,11 +271,23 @@ if __name__ == '__main__':
 		elif method == 'quasi_chi2':
 			freq_ns, labels = self.quasi_chi2_binning(**test_params[method])
 		test_results[method] = {'freq_ns': freq_ns, 'labels': labels}
-	
+
 	# 测试通用分箱函数.
-	test_results['by_general_func'] = {}
 	for method in ['isometric', 'equifreq', 'quasi_chi2']:
 		freq_ns, labels = self.series_binning(method, **test_params[method])
 		test_results['by_general_func'][method] = {'freq_ns': freq_ns, 'labels': labels}
-	
-	
+		
+	# ============ 测试离散值分箱 ============
+	# col = 'SEX'
+	# x_type = 'discrete'
+	# x = np.array(data[col])
+	#
+	# self = UnivarBinning(x, x_type)
+	#
+	# test_results = defaultdict(dict)
+	# test_params = {
+	# 	'label': {},
+	# }
+	#
+	# freq_ns, labels = self.label_binning(**test_params['label'])
+
