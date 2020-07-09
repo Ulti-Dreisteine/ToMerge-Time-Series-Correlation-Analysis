@@ -142,7 +142,7 @@ class JointBinning(object):
 			edges.append(e_)
 		
 		# 在各个维度上将数据值向label进行插入, 返回插入位置.
-		insert_locs_ = np.zeros_like(self.arr, dtype = int)
+		insert_locs_ = np.zeros_like(self.arr, dtype = int)     # TODO: 这里的arr值需要限制在序列插值范围内
 		for d in range(self.D):
 			insert_locs_[:, d] = np.searchsorted(edges[d], self.arr[:, d], side = 'left')
 		

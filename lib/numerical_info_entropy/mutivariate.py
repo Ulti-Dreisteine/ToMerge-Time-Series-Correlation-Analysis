@@ -167,7 +167,7 @@ if __name__ == '__main__':
 	from lib import load_test_data
 	from lib.numerical_info_entropy.univariate import UnivarInfoEntropy
 	
-	data = load_test_data(label = 'pollution')
+	data = load_test_data(label = 'patient')
 	
 	# ============ 测试计算熵 ============
 	# continuous_bins = {
@@ -219,58 +219,58 @@ if __name__ == '__main__':
 	# plt.legend(loc = 'upper right', fontsize = 6.0)
 	
 	# ============ 测试污染物浓度数据 ============
-	continuous_bins = {
-		'pm25': 110, 'pm10': 120, 'so2': 90, 'no2': 110, 'o3': 200, 'co': 200
-	}
-	continuous_cols = list(continuous_bins.keys())
-
-	for x_col in continuous_cols[:]:
-		y_col = 'pm25'
-		x, y = list(data[x_col]), list(data[y_col])
-		var_types = [
-			'continuous' if x_col in continuous_cols else 'discrete',
-			'continuous' if y_col in continuous_cols else 'discrete',
-		]
-
-		mutual_info_entropy_results = []
-		for bins_ in range(1, 1000, 1):
-			# 边际熵.
-			univar_entropy_x = UnivarInfoEntropy(x, var_types[0])
-			univar_entropy_y = UnivarInfoEntropy(y, var_types[1])
-
-			univar_entropy_x.do_series_binning(bins = bins_)
-			univar_entropy_y.do_series_binning(bins = bins_)
-
-			H_c_x = univar_entropy_x.cal_H_c()
-			H_c_y = univar_entropy_y.cal_H_c()
-
-		# 计算联合熵和互信息熵.
-			bins = [
-				bins_ if x_col in continuous_cols else None,
-				bins_ if y_col in continuous_cols else None,
-			]
-
-			self = PairJointEntropy(x, y, var_types, bins)
-			self.do_joint_binning()
-			H_c = self.cal_H_c()
-
-			mutual_info_entropy = H_c_x + H_c_y - H_c
-			mutual_info_entropy_results.append(mutual_info_entropy)
-
-		plt.plot(mutual_info_entropy_results, linewidth = 0.3, label = x_col)
-		plt.legend(loc = 'upper right', fontsize = 4.0)
-		plt.show()
-		plt.pause(0.1)
-	
-	# ============ 测试医疗数据 ============
 	# continuous_bins = {
-	# 	'AGE': 40, 'P': 50, 'MBP': 50, 'SHOCK_INDEX': 50, 'BMI': 50, 'RBC': 50,
-	# 	'HGB': 50, 'PLT': 50, 'WBC': 50, 'ALB': 50, 'CRE': 50, 'UA': 50, 'AST': 50,
-	# 	'ALT': 50, 'GLU': 50, 'TG': 50, 'CHO': 50, 'CA': 100, 'MG': 40, 'LDL': 50,
-	# 	'NA': 50, 'K': 50, 'CL': 50, 'GFR': 50, 'PT': 50, 'FIB': 50, 'DD': 50, 'CK': 50,
-	# 	'CAPRINI_SCORE': 10,
+	# 	'pm25': 110, 'pm10': 120, 'so2': 90, 'no2': 110, 'o3': 200, 'co': 200
 	# }
 	# continuous_cols = list(continuous_bins.keys())
+	#
+	# for x_col in continuous_cols[:]:
+	# 	y_col = 'pm25'
+	# 	x, y = list(data[x_col]), list(data[y_col])
+	# 	var_types = [
+	# 		'continuous' if x_col in continuous_cols else 'discrete',
+	# 		'continuous' if y_col in continuous_cols else 'discrete',
+	# 	]
+	#
+	# 	mutual_info_entropy_results = []
+	# 	for bins_ in range(1, 1000, 1):
+	# 		# 边际熵.
+	# 		univar_entropy_x = UnivarInfoEntropy(x, var_types[0])
+	# 		univar_entropy_y = UnivarInfoEntropy(y, var_types[1])
+	#
+	# 		univar_entropy_x.do_series_binning(bins = bins_)
+	# 		univar_entropy_y.do_series_binning(bins = bins_)
+	#
+	# 		H_c_x = univar_entropy_x.cal_H_c()
+	# 		H_c_y = univar_entropy_y.cal_H_c()
+	#
+	# 	# 计算联合熵和互信息熵.
+	# 		bins = [
+	# 			bins_ if x_col in continuous_cols else None,
+	# 			bins_ if y_col in continuous_cols else None,
+	# 		]
+	#
+	# 		self = PairJointEntropy(x, y, var_types, bins)
+	# 		self.do_joint_binning()
+	# 		H_c = self.cal_H_c()
+	#
+	# 		mutual_info_entropy = H_c_x + H_c_y - H_c
+	# 		mutual_info_entropy_results.append(mutual_info_entropy)
+	#
+	# 	plt.plot(mutual_info_entropy_results, linewidth = 0.3, label = x_col)
+	# 	plt.legend(loc = 'upper right', fontsize = 4.0)
+	# 	plt.show()
+	# 	plt.pause(0.1)
+	
+	# ============ 测试医疗数据 ============
+	continuous_bins = {
+		'AGE': 40, 'P': 50, 'MBP': 50, 'SHOCK_INDEX': 50, 'BMI': 50, 'RBC': 50,
+		'HGB': 50, 'PLT': 50, 'WBC': 50, 'ALB': 50, 'CRE': 50, 'UA': 50, 'AST': 50,
+		'ALT': 50, 'GLU': 50, 'TG': 50, 'CHO': 50, 'CA': 100, 'MG': 40, 'LDL': 50,
+		'NA': 50, 'K': 50, 'CL': 50, 'GFR': 50, 'PT': 50, 'FIB': 50, 'DD': 50, 'CK': 50,
+		'CAPRINI_SCORE': 10,
+	}
+	continuous_cols = list(continuous_bins.keys())
 
 	# # 曲线图.
 	# for x_col in continuous_cols:
@@ -316,50 +316,50 @@ if __name__ == '__main__':
 	# 	plt.pause(0.1)
 	
 	# 柱状图.
-	# joint_bins = {
-	# 	'AGE': 80, 'P': 80, 'MBP': 80, 'SHOCK_INDEX': 80, 'BMI': 80, 'RBC': 80,
-	# 	'HGB': 80, 'PLT': 80, 'WBC': 80, 'ALB': 80, 'CRE': 80, 'UA': 80, 'AST': 80,
-	# 	'ALT': 80, 'GLU': 80, 'TG': 80, 'CHO': 80, 'CA': 80, 'MG': 80, 'LDL': 80,
-	# 	'NA': 80, 'K': 80, 'CL': 80, 'GFR': 80, 'PT': 80, 'FIB': 80, 'DD': 80, 'CK': 80,
-	# 	'CAPRINI_SCORE': 13,
-	# }
-	# x_cols = [p for p in data.columns if p not in ['INPATIENT_ID', 'VTE']]
-	# mie_results = {}
-	# for x_col in x_cols:
-	# 	y_col = 'VTE'
-	# 	var_types = [
-	# 		'continuous' if x_col in continuous_cols else 'discrete',
-	# 		'continuous' if y_col in continuous_cols else 'discrete',
-	# 	]
-	# 	bins = [
-	# 		joint_bins[x_col] if x_col in continuous_cols else None,
-	# 		joint_bins[y_col] if y_col in continuous_cols else None,
-	# 	]
-	# 	x, y = list(data[x_col]), list(data[y_col])
-	# 	pair_joint_entropy = PairJointEntropy(x, y, var_types, bins)
-	# 	pair_joint_entropy.do_joint_binning()
-	# 	H_c_xy = pair_joint_entropy.cal_H_c()
-	#
-	# 	univar_entropy_x = UnivarInfoEntropy(x, var_types[0])
-	# 	univar_entropy_y = UnivarInfoEntropy(y, var_types[1])
-	# 	univar_entropy_x.do_series_binning(bins = bins[0])
-	# 	univar_entropy_y.do_series_binning(bins = bins[1])
-	#
-	# 	H_c_x = univar_entropy_x.cal_H_c()
-	# 	H_c_y = univar_entropy_y.cal_H_c()
-	#
-	# 	mie_results[x_col] = H_c_x + H_c_y - H_c_xy
-	#
-	# sorted_lst = sorted(mie_results.items(), key = lambda x: x[1], reverse = True)
-	# mie_results = dict(zip([p[0] for p in sorted_lst], [p[1] for p in sorted_lst]))
-	#
-	# plt.figure(figsize = [16, 6])
-	# plt.bar(
-	# 	mie_results.keys(),
-	# 	mie_results.values(),
-	# )
-	# plt.xticks(rotation = 90, fontsize = 6)
-	# plt.yticks(fontsize = 6)
-	# plt.ylabel('mutual info entropy value', fontsize = 6)
-	# plt.tight_layout()
+	joint_bins = {
+		'AGE': 10, 'P': 10, 'MBP': 10, 'SHOCK_INDEX': 10, 'BMI': 10, 'RBC': 10,
+		'HGB': 10, 'PLT': 10, 'WBC': 10, 'ALB': 10, 'CRE': 10, 'UA': 10, 'AST': 10,
+		'ALT': 10, 'GLU': 10, 'TG': 10, 'CHO': 10, 'CA': 10, 'MG': 10, 'LDL': 10,
+		'NA': 10, 'K': 10, 'CL': 10, 'GFR': 10, 'PT': 10, 'FIB': 10, 'DD': 10, 'CK': 10,
+		'CAPRINI_SCORE': 10,
+	}
+	x_cols = [p for p in data.columns if p not in ['INPATIENT_ID', 'VTE']]
+	mie_results = {}
+	for x_col in x_cols:
+		y_col = 'VTE'
+		var_types = [
+			'continuous' if x_col in continuous_cols else 'discrete',
+			'continuous' if y_col in continuous_cols else 'discrete',
+		]
+		bins = [
+			joint_bins[x_col] if x_col in continuous_cols else None,
+			joint_bins[y_col] if y_col in continuous_cols else None,
+		]
+		x, y = list(data[x_col]), list(data[y_col])
+		pair_joint_entropy = PairJointEntropy(x, y, var_types, bins)
+		pair_joint_entropy.do_joint_binning()
+		H_c_xy = pair_joint_entropy.cal_H_c()
+
+		univar_entropy_x = UnivarInfoEntropy(x, var_types[0])
+		univar_entropy_y = UnivarInfoEntropy(y, var_types[1])
+		univar_entropy_x.do_series_binning(bins = bins[0])
+		univar_entropy_y.do_series_binning(bins = bins[1])
+
+		H_c_x = univar_entropy_x.cal_H_c()
+		H_c_y = univar_entropy_y.cal_H_c()
+
+		mie_results[x_col] = H_c_x + H_c_y - H_c_xy
+
+	sorted_lst = sorted(mie_results.items(), key = lambda x: x[1], reverse = True)
+	mie_results = dict(zip([p[0] for p in sorted_lst], [p[1] for p in sorted_lst]))
+
+	plt.figure(figsize = [16, 6])
+	plt.bar(
+		mie_results.keys(),
+		mie_results.values(),
+	)
+	plt.xticks(rotation = 90, fontsize = 6)
+	plt.yticks(fontsize = 6)
+	plt.ylabel('mutual info entropy value', fontsize = 6)
+	plt.tight_layout()
 	
