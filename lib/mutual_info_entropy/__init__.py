@@ -13,16 +13,7 @@ Created on 2020/7/9 2:36 下午
 @Describe:
 """
 
-import logging
-
-logging.basicConfig(level = logging.INFO)
-
-import sys, os
-
-sys.path.append('')
-
-if __name__ == '__main__':
-	pass
+__all__ = None
 
 
 

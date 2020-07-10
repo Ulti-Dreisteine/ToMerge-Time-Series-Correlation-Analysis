@@ -102,7 +102,7 @@ class UnivarBinning(object):
 					self.x_type, current_method, suit_method)
 			)
 	
-	@time_cost
+	# @time_cost
 	def isometric_binning(self, bins: int) -> (list, list):
 		"""
 		连续数据等距分箱
@@ -121,7 +121,7 @@ class UnivarBinning(object):
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def equifreq_binning(self, equi_freq_n: int) -> (list, list):
 		"""
 		等频分箱
@@ -144,7 +144,7 @@ class UnivarBinning(object):
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def quasi_chi2_binning(self, init_bins: int, final_bins: int, merge_freq_thres: float = None) -> (list, list):
 		"""
 		连续数据拟卡方分箱
@@ -206,7 +206,7 @@ class UnivarBinning(object):
 		
 		return freq_ns, labels
 	
-	@time_cost
+	# @time_cost
 	def label_binning(self) -> (list, list):
 		"""根据离散数据自身标签值进行分箱"""
 		self._check_binning_match('label_binning', 'discrete', 'isometric_binning/quasi_chi2_binning/equifreq_binning')
